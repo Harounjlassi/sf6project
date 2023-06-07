@@ -53,7 +53,7 @@ class FirstController extends AbstractController
 //            'firstname'=> 'haroun'
 //
 //        ]);
-    dd($request);
+//    dd($request);
     return $this->render('first/hello.html.twig',[
         'name'=>$name,
         'firstname'=>$firstname
