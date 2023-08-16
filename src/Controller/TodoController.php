@@ -28,8 +28,7 @@ class TodoController extends AbstractController
 
         return $this->render('todo/index.html.twig', [
             'controller_name' => 'TodoController',
-        ]);
-    }
+        ]);}
 
     #[Route('/todo/add/{name}/{content}', name: 'todo.add')]
     public function addTodo(Request $request, $name, $content)
