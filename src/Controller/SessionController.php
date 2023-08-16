@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 
+
 class SessionController extends AbstractController
 {
     #[Route('/session', name: 'app_session')]
@@ -15,15 +16,19 @@ class SessionController extends AbstractController
     {
         //session_start()
         $session=$request->getsession();
+
+        $nbrVisite=0;
         if($session->has('nbVisite')){
-            $nbVisite=$session->get('nbVisite')+1;
-        }else {
-            $nbVisite = 1;
-
-
+            $nbrVisite=$session->get('nbVisite')+1;
+        }else{
+            $nbrVisite=1;
         }
-        $session->set('nbVisite',$nbVisite);
+        $session->set('nbVisite',$nbrVisite);
 
-      return $this->render('session/index.html.twig');
+        //
+
+        return $this->render('session/index.html.twig', [
+            'controller_name' => 'SessionController',
+        ]);
     }
 }
