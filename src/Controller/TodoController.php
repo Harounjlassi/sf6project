@@ -8,11 +8,15 @@ use Symfony\Component\HttpFoundation\Request;
 
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-
+#[Route("todo")]
+// pour tout les URL todo is initialized : préfixe et valeur par défaut
 class TodoController extends AbstractController
 {
-    #[Route('/todo', name: 'app_todo')]
-    public function index(Request $request): Response
+//    /**
+//     * @Route("/todo", name="todo")
+//     */
+    #[Route('/', name: 'app_todo')]
+    public function index(Request $request):Response
     {
         //aficher noter Todo tableau
         $session = $request->getsession();
@@ -32,7 +36,12 @@ class TodoController extends AbstractController
         ]);
     }
 
-    #[Route('/todo/add/{name}/{content}', name: 'todo.add')]
+    #[Route(
+        '/add/{name?si ma t7otech valeu rkif defaults: []}/{content?test}',
+        name: 'todo.add',
+        //defaults: ['name'=>'d','content'=>'sfb6']
+        //ken ma7atitechye5o hethi par default
+    )]
     public function addTodo(Request $request, $name, $content):RedirectResponse
     {
         //verfier si jai mo,nn tableau de todo dans la sesion
@@ -62,7 +71,7 @@ class TodoController extends AbstractController
 
     }
 
-    #[Route('/todo/update/{name}/{content}', name: 'todo.update')]
+    #[Route('/update/{name}/{content}', name: 'todo.update')]
     public function updateTodo(Request $request, $name, $content):RedirectResponse
     {
         //verfier si jai mo,nn tableau de todo dans la sesion
@@ -93,7 +102,7 @@ class TodoController extends AbstractController
     }
 
 
-    #[Route('/todo/delate/{name}', name: 'todo.delate')]
+    #[Route('/delate/{name}', name: 'todo.delate')]
     public function delateTodo(Request $request, $name):RedirectResponse
     {
         //verfier si jai mo,nn tableau de todo dans la sesion
@@ -122,7 +131,7 @@ class TodoController extends AbstractController
 
 
     }
-    #[Route('/todo/reset', name: 'todo.reset')]
+    #[Route('/reset', name: 'todo.reset')]
     public function resetTodo(Request $request):RedirectResponse
     {
         $session=$request->getSession();

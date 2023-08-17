@@ -5,6 +5,7 @@ namespace App\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\Request;
 
 class FirstController extends AbstractController
 {
@@ -36,7 +37,16 @@ class FirstController extends AbstractController
 //</head>"
 //        );
 
-    #[Route('/sayhello', name: 'say.hello')]
+
+    /*Le routeur de Symfony requirements et ordre des routes
+    =>les routes specifiques apres les routes generiques
+    "Les premier route gagne toujours"
+
+    */
+
+
+
+    #[Route('/sayhello', name: 'say')]
     public function sayhello(): Response
     {
         $rand = rand(0, 10);
@@ -49,6 +59,38 @@ class FirstController extends AbstractController
         }
         return $this->forward('App\Controller\FirstController::index');
     }
+
+    #[Route('/sayhello/{nom}/{prenom}', name: 'say.welcome')]
+    public function hello(Request $request,$nom,$prenom): Response
+    {
+
+        return $this->render('first/hello.html.twig', [
+            'nom'=>$nom,
+                'prenom'=>$prenom
+            ]
+
+        );
+    }
+    #[Route('/multi/{entier1<\d+>}/{entier2<\d+>}',
+        name: 'multiplication',
+        //requirements: ['entier1'=>'\d+','entier2'=>'\d+']
+    )]
+    public function multiplication($entier1, $entier2)
+    {
+        $resultat = $entier1 * $entier2;
+        return new Response("<h1>$resultat</h1>");
+
+
+   }
+//    #[Route('{maVar}',name:'test.order.route')]
+//    public function testRoute($maVar): Response
+//    {
+//        return new Response(
+//            "<html><body>$maVar</body></html>"
+//
+//        );
+//
+//    }
 
 }
 
