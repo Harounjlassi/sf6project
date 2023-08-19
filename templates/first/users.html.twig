@@ -9,6 +9,11 @@ Users
 {#{{ dump(users) }}#}
 {% block body %}
     {{ include('fragments/date-jour.html.twig') }}
+    <div class="alert alert-warning">
+
+
+                <a href="{{ path('tab-app',{nb:7}) }}">static table</a>
+    </div>
 
     <table class="table">
 
@@ -29,8 +34,10 @@ Users
             {{ render(controller('App\\Controller\\FirstController::hello',{'nom':user.name,'prenom':user.firstname})) }}
         </td>
 
+
     </tr>
     {% endfor %}
+        mon url absolue est : {{ url('first') }}
 
 </table>
 

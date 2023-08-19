@@ -50,7 +50,6 @@ class FirstController extends AbstractController
     public function sayhello(): Response
     {
         $rand = rand(0, 10);
-        echo $rand;
         if ($rand == 3) {
 
             return $this->redirectToRoute('first');

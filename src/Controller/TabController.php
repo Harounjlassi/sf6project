@@ -8,8 +8,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class TabController extends AbstractController
 {
-    #[Route('/tab/{nb</d+>?2}', name: 'app_tab')]
-    public function index($nb): Response
+    #[Route('/tab/{nb<\d+>?2}', name: 'tab-app')]
+    public function tab($nb): Response
     {
         $notes= [];
         for($i=0 ;$i<$nb;$i++){
