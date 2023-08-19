@@ -1,0 +1,9 @@
+{% extends 'heritage.html.twig' %}
+{% block titreDudocument %}
+    nouveau titre
+{% endblock%}
+{% block corpsDuducument%}
+    {{ parent() }}
+    <br>
+redifinition du corps
+{% endblock%}

@@ -1,0 +1,37 @@
+{% extends 'template.html.twig' %}
+{% block title %}
+Users
+{% endblock %}
+{% block Pagetitle %}
+Users
+{% endblock %}
+
+{#{{ dump(users) }}#}
+{% block body %}
+    {{ include('fragments/date-jour.html.twig') }}
+
+    <table class="table">
+
+    <tr class="table-active">
+    <td>Firstname</td>
+    <td>Name</td>
+    <td>Age</td>
+    </tr>
+
+
+
+    {% for user in users %}
+    <tr class="table-{%  if loop.index is odd %}danger{% else %}warming{% endif %}">
+        <td> {{ user.firstname }}</td>
+        <td>{{ user.name }}</td>
+        <td>{{ user.age }}</td>
+        <td>
+            {{ render(controller('App\\Controller\\FirstController::hello',{'nom':user.name,'prenom':user.firstname})) }}
+        </td>
+
+    </tr>
+    {% endfor %}
+
+</table>
+
+{% endblock %}

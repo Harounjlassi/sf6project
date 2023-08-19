@@ -60,13 +60,14 @@ class FirstController extends AbstractController
         return $this->forward('App\Controller\FirstController::index');
     }
 
-    #[Route('/sayhello/{nom}/{prenom}', name: 'say.welcome')]
+//    #[Route('/sayhello/{nom}/{prenom}', name: 'say.welcome')]
     public function hello(Request $request,$nom,$prenom): Response
     {
 
         return $this->render('first/hello.html.twig', [
             'nom'=>$nom,
-                'prenom'=>$prenom
+                'prenom'=>$prenom,
+                'path'=>'     '
             ]
 
         );
@@ -91,6 +92,38 @@ class FirstController extends AbstractController
 //        );
 //
 //    }
+    #[Route('/tab/user', name: 'tab.users')]
+    public function users(): Response
+    {
+        $users=[
+
+            ['firstname'=>'haroun','name'=>'jlassi','age'=>39],
+            ['firstname'=>'aziz','name'=>'jlassi','age'=>49],
+            ['firstname'=>'fathi','name'=>'jlassi','age'=>19],
+
+        ];
+//dd($users);
+        return $this->render('first/users.html.twig', [
+                'users'=>$users
+
+            ]
+
+        );
+    }
+    #[Route('/template', name: 'template')]
+    public function template(): Response
+    {
+        $users=[
+
+            ['firstname'=>'haroun','name'=>'jlassi','age'=>39],
+            ['firstname'=>'aziz','name'=>'jlassi','age'=>49],
+            ['firstname'=>'fathi','name'=>'jlassi','age'=>19],
+
+        ];
+
+        return $this->render('template.html.twig');
+    }
+
 
 }
 

@@ -1,28 +1,25 @@
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
-    <link rel="stylesheet" href="{{ asset('node_modules/bootstrap/dist/css/bootstrap.css') }}">
-
-</head>
-<body>
-<table class="table">
-    {% for note in notes %}
-    <tr>
-        <td>{{ note }}</td>
-    </tr>
-    {% endfor %}
-</table>
-<div class="alert alert-info">
-    <p>Nombre de notes : {{ notes |length }}</p>
-    <p>Note minimale : {{ min(notes) }}</p>
-    <p>Note maximale : {{ max(notes) }}</p>
+{% extends 'template.html.twig' %}
+  {% block Pagetitle %}
+      UserPage
+  {% endblock %}
+   {% block title %}
+       users
+   {% endblock %}
+{% block body %}
 
 
-</div>
-</body>
-</html>
+    <table class="table">
+        {% for note in notes %}
+            <tr>
+                <td>{{ note }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+    <div class="alert alert-info">
+        <p>Nombre de notes : {{ notes |length }}</p>
+        <p>Note minimale : {{ min(notes) }}</p>
+        <p>Note maximale : {{ max(notes) }}</p>
+
+
+    </div>
+{% endblock %}
