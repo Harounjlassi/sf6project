@@ -46,7 +46,7 @@ class FirstController extends AbstractController
 
 
 
-    #[Route('/sayhello', name: 'say')]
+   #[Route('/sayhello', name: 'say')]
     public function sayhello(): Response
     {
         $rand = rand(0, 10);
@@ -59,7 +59,7 @@ class FirstController extends AbstractController
         return $this->forward('App\Controller\FirstController::index');
     }
 
-//    #[Route('/sayhello/{nom}/{prenom}', name: 'say.welcome')]
+    #[Route('/sayhello/{nom}/{prenom}', name: 'say.welcome')]
     public function hello(Request $request,$nom,$prenom): Response
     {
 
@@ -91,7 +91,7 @@ class FirstController extends AbstractController
 //        );
 //
 //    }
-    #[Route('/tab/user', name: 'tab.users')]
+  #[Route('/tab/user', name: 'tab.users')]
     public function users(): Response
     {
         $users=[
