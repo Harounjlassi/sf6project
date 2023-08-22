@@ -32,6 +32,8 @@
                     <h6 class="card-subtitle mb-2 text-muted">{{ personne.firstname }} {{ personne.name }}</h6>
                     <p class="card-text">Age: {{ personne.age }}</p>
                     <a href="{{ path('personne.detail',{id:personne.id}) }}" class="card-link">detail</a>
+                    <a href="{{ path('personne.delete',{id:personne.id}) }}" class="card-link">delete</a>
+
                 </div>
             </div>
 

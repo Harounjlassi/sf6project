@@ -6,6 +6,7 @@ namespace App\Controller;
 use App\Entity\Personne;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -36,14 +37,14 @@ class PersonneController extends AbstractController
     public function indexAllPagination(ManagerRegistry $doctrine, $page, $nbre): Response
     {
         $repository = $doctrine->getRepository(Personne::class);
-        $nbPersonne=$repository->count([]);
-        $nbPage=ceil($nbPersonne/$nbre);
+        $nbPersonne = $repository->count([]);
+        $nbPage = ceil($nbPersonne / $nbre);
         $personne = $repository->findBy([], [], $nbre, ($page - 1) * $nbre);
         return $this->render('personne/index.html.twig', ['personne' => $personne,
-            'isPaginated'=>true,
-            'nbrePage'=>$nbPage,
-            'page'=>$page,
-            'nbre'=>$nbre
+            'isPaginated' => true,
+            'nbrePage' => $nbPage,
+            'page' => $page,
+            'nbre' => $nbre
         ]);
 
 
@@ -85,5 +86,61 @@ class PersonneController extends AbstractController
         return $this->render('personne/detail.html.twig', [
             'personne' => $personne,
         ]);
+    }
+
+    #[Route('/delete/{id}', name: 'personne.delete')]
+    public function delatPersonne(ManagerRegistry $doctrine, Personne $personne = null): RedirectResponse
+    {
+        //Récupérer la personne
+
+        if ($personne) {
+            // Si la personne existe => le supprimer et retourner un flash messahe de success
+
+            $manager = $doctrine->getManager();
+            //ajoute la finction de supprition dans la transaction
+            $manager->remove($personne);
+            //exucuter la transaction
+            $manager->flush();
+            $this->addFlash('success', "personne a éte supprimer avec succés");
+
+
+        } else {
+            // sinon return un flash message d'erreur
+            $this->addFlash('error', "Personne introuvable");
+
+
+        }
+        return $this->redirectToRoute('personne.list.alls');
+
+
+    }
+
+    #[Route('/update/{id}/{name}/{firstname}/{age}', 'personne.update')]
+    public function updatePersonne(ManagerRegistry $doctrine, Personne $personne = null, $name, $firstname, $age): Response
+    {
+        if ($personne) {
+            $personne->setName($name);
+            $personne->setFirstname($firstname);
+            $personne->setAge($age);
+
+            //verifie que la personne existe
+
+            $manger = $doctrine->getManager();
+            $manger->persist($personne);
+            $manger->flush();
+            $this->addFlash('success', 'Personne updated with success ');
+
+        } else {
+            // sinon return un flash message d'erreur
+            $this->addFlash('error', "Personne introuvable");
+            //sinon message d'errue
+
+
+        }
+        return $this->redirectToRoute('personne.list.alls');
+
+
+
+
     }
 }
