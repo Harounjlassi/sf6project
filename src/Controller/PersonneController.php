@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+
 #[Route('personne')]
 class PersonneController extends AbstractController
 {
@@ -19,6 +20,37 @@ class PersonneController extends AbstractController
         $repository = $doctrine->getRepository(Personne::class);
         $personnes = $repository->findAll();
         return $this->render('personne/index.html.twig', ['personne' => $personnes]);
+
+
+    }
+
+    #[Route('/alls/age/{ageMin}/{ageMax}', name: 'personne.list.age')]
+    public function personneByAge(ManagerRegistry $doctrine, $ageMin, $ageMax): Response
+    {
+        $repository = $doctrine->getRepository(Personne::class);
+        $personnes = $repository->findPersonneByAgeInterval($ageMin, $ageMax);
+        return $this->render('personne/index.html.twig'
+            , [
+                'personne' => $personnes
+
+            ]
+        );
+
+
+    }
+
+    #[Route('/stat/age/{ageMin}/{ageMax}', name: 'personne.list.stat')]
+    public function statPersonne(ManagerRegistry $doctrine, $ageMin, $ageMax): Response
+    {
+        $repository = $doctrine->getRepository(Personne::class);
+        $stat = $repository->statsPersonneByAgeInterval($ageMin, $ageMax);
+//        dd($stat[0]['ageMoyen']);
+        return $this->render('personne/stat.html.twig',
+            [
+            'stat' => $stat[0],
+            'ageMax' => $ageMax,
+            'ageMin' => $ageMin
+            ]);
 
 
     }
@@ -140,7 +172,7 @@ class PersonneController extends AbstractController
         return $this->redirectToRoute('personne.list.alls');
 
 
-
-
     }
+
+
 }
