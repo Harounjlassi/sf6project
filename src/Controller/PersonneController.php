@@ -4,7 +4,9 @@ namespace App\Controller;
 
 
 use App\Entity\Personne;
+use App\Form\PersonneType;
 use Doctrine\Persistence\ManagerRegistry;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -82,6 +84,43 @@ class PersonneController extends AbstractController
 
     }
 
+
+//    #[Route('/add', name: 'app_personne')]
+
+    /**
+     * @Route("/add")
+     */
+
+    public function addPersonne(ManagerRegistry $doctrine): Response
+    {
+        //$this->getDoctrine() : version sd <= 5
+        $entityManager = $doctrine->getManager();
+//        $personne = new Personne();
+//
+//        $personne->setFirstname("aziz");
+//        $personne->setName("jlassi");
+//        $personne->setAge(45);
+//        dump($entityManager);
+//
+//        //Ajouter l'operation de la personne dans ma transcation
+//        $entityManager->persist($personne);
+//        //$entityManager->persist($personne2);
+//
+//
+//        // exucution la transaction todo
+        $personne= new Personne();
+        $form=$this->createForm(PersonneType::class,$personne);
+        $form->remove('createdAt');
+        $form->remove('updatedAt');
+
+        //create un formulaire  voila la description objet formulaire PersonneType::class et voila l'object qui va etre l'image de ce formulaire la
+//        $entityManager->flush();
+
+        return $this->render('personne/add-personne.html.twig', [
+//            'personne' => $personne,
+        'form'=>$form->createView()
+        ]);
+    }
     #[Route('/{id}', 'personne.detail')]
     public function detail(Personne $personne): Response
     {
@@ -95,30 +134,6 @@ class PersonneController extends AbstractController
         return $this->render('personne/detail.html.twig', ['personne' => $personne]);
     }
 
-    #[Route('/add', name: 'app_personne')]
-    public function addPersonne(ManagerRegistry $doctrine): Response
-    {
-        //$this->getDoctrine() : version sd <= 5
-        $entityManager = $doctrine->getManager();
-        $personne = new Personne();
-
-        $personne->setFirstname("aziz");
-        $personne->setName("jlassi");
-        $personne->setAge(45);
-        dump($entityManager);
-
-        //Ajouter l'operation de la personne dans ma transcation
-        $entityManager->persist($personne);
-        //$entityManager->persist($personne2);
-
-
-        // exucution la transaction todo
-        $entityManager->flush();
-
-        return $this->render('personne/detail.html.twig', [
-            'personne' => $personne,
-        ]);
-    }
 
     #[Route('/delete/{id}', name: 'personne.delete')]
     public function delatPersonne(ManagerRegistry $doctrine, Personne $personne = null): RedirectResponse

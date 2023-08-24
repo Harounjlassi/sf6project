@@ -3,13 +3,17 @@
 namespace App\Entity;
 
 use App\Repository\JobRepository;
+use App\Triats\TimeStampTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: JobRepository::class)]
+#[ORM\HasLifecycleCallbacks()]
+
 class Job
 {
+    use TimeStampTrait;
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -18,7 +22,7 @@ class Job
     #[ORM\Column(length: 255)]
     private ?string $designation = null;
 
-    #[ORM\OneToMany(mappedBy: 'job', targetEntity: Personne::class)]
+    #[ORM\OneToMany(mappedBy: 'Job', targetEntity: Personne::class)]
     private Collection $personnes;
 
     public function __construct()
@@ -71,5 +75,9 @@ class Job
         }
 
         return $this;
+    }
+    public function __toString(): string
+    {
+        return $this->designation;
     }
 }
