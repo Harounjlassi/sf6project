@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: PersonneRepository::class)]
 #[ORM\HasLifecycleCallbacks()]
@@ -21,7 +22,9 @@ class Personne
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 30)]
+    #[ORM\Column(type:"string",length: 30)]
+    #[Assert\NotBlank(message: "Veuillez renseigner ce champ")]
+    #[Assert\Assert\Length(min:4,message:"veiller avoir au moins 4 caractére ")]
     private ?string $firstname = null;
 
     #[ORM\Column(length: 30)]
@@ -30,7 +33,7 @@ class Personne
     #[ORM\Column(type: Types::SMALLINT)]
     private ?int $age = null;
 
-    #[ORM\OneToOne(inversedBy: 'Personne', cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(inversedBy: 'personne', cascade: ['persist', 'remove'])]
     private ?Profile $profile = null;
 
     #[ORM\ManyToMany(targetEntity: Hobby::class)]
@@ -38,6 +41,9 @@ class Personne
 
     #[ORM\ManyToOne(inversedBy: 'personnes')]
     private ?Job $job = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $image = null;
 
 
 
@@ -135,7 +141,17 @@ class Personne
         return $this;
     }
 
+    public function getImage(): ?string
+    {
+        return $this->image;
+    }
 
+    public function setImage(?string $image): static
+    {
+        $this->image = $image;
+
+        return $this;
+    }
 
 
 }

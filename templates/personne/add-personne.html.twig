@@ -5,6 +5,14 @@
 {% endblock %}
 
 {% block body %}
-    {{ form(form) }}
+{#    {{ form(form) }}#}
+    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+    <div class="row">
+        <div class="col">{{ form_row(form.firstname) }}</div>
+        <div class="col">{{ form_row(form.name) }}</div>
+        {{ form_rest(form) }}
+
+    </div>
+
 {% endblock %}
 

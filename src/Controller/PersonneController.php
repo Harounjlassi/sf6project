@@ -4,23 +4,31 @@ namespace App\Controller;
 
 
 use App\Entity\Personne;
+use App\Entity\Profile;
 use App\Form\PersonneType;
 use Doctrine\Persistence\ManagerRegistry;
+use App\Form\Type\TaskType;
+
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 
 #[Route('personne')]
 class PersonneController extends AbstractController
 {
-    #[Route('/', 'personne.list')]
+    #[Route('/', 'personne.list.root')]
     public function index(ManagerRegistry $doctrine): Response
     {
         $repository = $doctrine->getRepository(Personne::class);
         $personnes = $repository->findAll();
+        dump($personnes);
         return $this->render('personne/index.html.twig', ['personne' => $personnes]);
 
 
@@ -49,9 +57,9 @@ class PersonneController extends AbstractController
 //        dd($stat[0]['ageMoyen']);
         return $this->render('personne/stat.html.twig',
             [
-            'stat' => $stat[0],
-            'ageMax' => $ageMax,
-            'ageMin' => $ageMin
+                'stat' => $stat[0],
+                'ageMax' => $ageMax,
+                'ageMin' => $ageMin
             ]);
 
 
@@ -91,48 +99,89 @@ class PersonneController extends AbstractController
      * @Route("/add")
      */
 
-    public function addPersonne(ManagerRegistry $doctrine): Response
+    public function addPersonne(ManagerRegistry $doctrine, Request $request,SluggerInterface $slugger)
     {
         //$this->getDoctrine() : version sd <= 5
-        $entityManager = $doctrine->getManager();
+
 //        $personne = new Personne();
-//
 //        $personne->setFirstname("aziz");
 //        $personne->setName("jlassi");
 //        $personne->setAge(45);
 //        dump($entityManager);
+//        $entityManager->flush();
+
 //
-//        //Ajouter l'operation de la personne dans ma transcation
+        //Ajouter l'operation de la personne dans ma transcation
 //        $entityManager->persist($personne);
-//        //$entityManager->persist($personne2);
+//        $entityManager->persist($personne2);
 //
 //
-//        // exucution la transaction todo
-        $personne= new Personne();
-        $form=$this->createForm(PersonneType::class,$personne);
+//       // exucution la transaction todo
+        $entityManager = $doctrine->getManager();
+
+        $personne = new Personne();
+        $form = $this->createForm(PersonneType::class, $personne, );
         $form->remove('createdAt');
         $form->remove('updatedAt');
+//        dd($request);
+        // mon formulaire va aller traiter la requte
+        // est ce que mon formulaire a éte soumis
+        //2 cas :
+
+
+        $form->handleRequest($request);
+////        //HandlRequest elle gère la requête et récupére l'objet.
+        if ($form->isSubmitted() && $form->isValid()) {
+            //si oui on ajoute l'objet de personne danslma base de donnée
+//         dd($personne);
+//            dd($form->getData()); // meme que dd($personne);
+            //si non rediriger vers la liste de personne
+            // afficher un message de success
+            $entityManager->persist($personne);
+            $brochureFile = $form->get('photo')->getData();
+
+            // this condition is needed because the 'brochure' field is not required
+            // so the PDF file must be processed only when a file is uploaded
+            if ($brochureFile) {
+                $originalFilename = pathinfo($brochureFile->getClientOriginalName(), PATHINFO_FILENAME);
+                // this is needed to safely include the file name as part of the URL
+                $safeFilename = $slugger->slug($originalFilename);
+                $newFilename = $safeFilename.'-'.uniqid().'.'.$brochureFile->guessExtension();
+
+                // Move the file to the directory where brochures are stored
+                try {
+                    $brochureFile->move(
+                        $this->getParameter('personne_directory'),
+                        $newFilename
+                    );
+                } catch (FileException $e) {
+                    // ... handle exception if something happens during file upload
+                }
+
+                // updates the 'brochureFilename' property to store the PDF file name
+                // instead of its contents
+                $personne->setImage($newFilename);
+            }
+
+            $entityManager->flush();
+            $this->addFlash("success", $personne->getName() . "a ete ahjouter avec succes ");
+            return $this->redirectToRoute('personne.list');
+
+
+        } else {
+            // si non on affiche notre formualire
+
+            return $this->renderForm('personne/add-personne.html.twig', ['form' => $form]);
+
+        }
+
 
         //create un formulaire  voila la description objet formulaire PersonneType::class et voila l'object qui va etre l'image de ce formulaire la
 //        $entityManager->flush();
 
-        return $this->render('personne/add-personne.html.twig', [
-//            'personne' => $personne,
-        'form'=>$form->createView()
-        ]);
     }
-    #[Route('/{id}', 'personne.detail')]
-    public function detail(Personne $personne): Response
-    {
-//        $repository=$doctrine->getRepository(Personne::class);
-//        $personne=$repository->find($id);
-//        if(!$personne){
-//            $this->addFlash('error',"la personne n'existe pas");
-//        return $this->redirectToRoute('personne.list');
-//
-//        }
-        return $this->render('personne/detail.html.twig', ['personne' => $personne]);
-    }
+
+
 
 
     #[Route('/delete/{id}', name: 'personne.delete')]
@@ -187,6 +236,18 @@ class PersonneController extends AbstractController
         return $this->redirectToRoute('personne.list.alls');
 
 
+    }
+    #[Route('/{id}', 'personne.detail')]
+    public function detail(Personne $personne): Response
+    {
+//        $repository=$doctrine->getRepository(Personne::class);
+//        $personne=$repository->find($id);
+//        if(!$personne){
+//            $this->addFlash('error',"la personne n'existe pas");
+//        return $this->redirectToRoute('personne.list');
+//
+//        }
+        return $this->render('personne/detail.html.twig', ['personne' => $personne]);
     }
 
 
