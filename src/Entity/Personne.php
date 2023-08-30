@@ -24,7 +24,7 @@ class Personne
 
     #[ORM\Column(type:"string",length: 30)]
     #[Assert\NotBlank(message: "Veuillez renseigner ce champ")]
-    #[Assert\Assert\Length(min:4,message:"veiller avoir au moins 4 caractére ")]
+    #[Assert\Assert\Length(min:4,minMessage:"veiller avoir au moins 4 caractére ")]
     private ?string $firstname = null;
 
     #[ORM\Column(length: 30)]

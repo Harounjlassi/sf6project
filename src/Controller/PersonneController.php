@@ -6,13 +6,19 @@ namespace App\Controller;
 use App\Entity\Personne;
 use App\Entity\Profile;
 use App\Form\PersonneType;
+use App\Service\Helpers;
+use App\Service\MailerService;
+use App\Service\PdfService;
+use App\Service\UploaderService;
 use Doctrine\Persistence\ManagerRegistry;
 use App\Form\Type\TaskType;
 
+use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -23,6 +29,10 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 #[Route('personne')]
 class PersonneController extends AbstractController
 {
+    public function __construct(private LoggerInterface $logger,private Helpers $helpers)
+    {
+    }
+
     #[Route('/', 'personne.list.root')]
     public function index(ManagerRegistry $doctrine): Response
     {
@@ -33,6 +43,13 @@ class PersonneController extends AbstractController
 
 
     }
+    #[Route('/pdf/{id}',name:"personne.pdf")]
+    public function generatePdfPersonne(Personne $personne=null,PdfService $pdf){
+        $html=$this->render('personne/detail.html.twig',['personne'=>$personne]);
+        $pdf->showPdfFile($html);
+
+
+}
 
     #[Route('/alls/age/{ageMin}/{ageMax}', name: 'personne.list.age')]
     public function personneByAge(ManagerRegistry $doctrine, $ageMin, $ageMax): Response
@@ -78,6 +95,9 @@ class PersonneController extends AbstractController
     #[Route('/alls/{page?1}/{nbre?12}', 'personne.list.alls')]
     public function indexAllPagination(ManagerRegistry $doctrine, $page, $nbre): Response
     {
+        echo($this->helpers->sayCc());
+
+
         $repository = $doctrine->getRepository(Personne::class);
         $nbPersonne = $repository->count([]);
         $nbPage = ceil($nbPersonne / $nbre);
@@ -96,10 +116,10 @@ class PersonneController extends AbstractController
 //    #[Route('/add', name: 'app_personne')]
 
     /**
-     * @Route("/add")
+     * @Route("/add", "personne.add")
      */
 
-    public function addPersonne(ManagerRegistry $doctrine, Request $request,SluggerInterface $slugger)
+    public function addPersonne(ManagerRegistry $doctrine, Request $request ,UploaderService $uploader )
     {
         //$this->getDoctrine() : version sd <= 5
 
@@ -143,24 +163,11 @@ class PersonneController extends AbstractController
             // this condition is needed because the 'brochure' field is not required
             // so the PDF file must be processed only when a file is uploaded
             if ($brochureFile) {
-                $originalFilename = pathinfo($brochureFile->getClientOriginalName(), PATHINFO_FILENAME);
-                // this is needed to safely include the file name as part of the URL
-                $safeFilename = $slugger->slug($originalFilename);
-                $newFilename = $safeFilename.'-'.uniqid().'.'.$brochureFile->guessExtension();
+                $directory=$this->getParameter('personne_directory');
 
-                // Move the file to the directory where brochures are stored
-                try {
-                    $brochureFile->move(
-                        $this->getParameter('personne_directory'),
-                        $newFilename
-                    );
-                } catch (FileException $e) {
-                    // ... handle exception if something happens during file upload
-                }
+                $personne->setImage($uploader->uploadfile($brochureFile,$directory));
 
-                // updates the 'brochureFilename' property to store the PDF file name
-                // instead of its contents
-                $personne->setImage($newFilename);
+
             }
 
             $entityManager->flush();
@@ -185,9 +192,9 @@ class PersonneController extends AbstractController
 
 
     #[Route('/delete/{id}', name: 'personne.delete')]
-    public function delatPersonne(ManagerRegistry $doctrine, Personne $personne = null): RedirectResponse
+    public function delatPersonne(ManagerRegistry $doctrine, Personne $personne = null,MailerService $mailer): RedirectResponse
     {
-        //Récupérer la personne
+
 
         if ($personne) {
             // Si la personne existe => le supprimer et retourner un flash messahe de success
@@ -197,7 +204,9 @@ class PersonneController extends AbstractController
             $manager->remove($personne);
             //exucuter la transaction
             $manager->flush();
-            $this->addFlash('success', "personne a éte supprimer avec succés");
+            $mailer->sendEmail();
+            $this->addFlash('success', "personne  éte supprimer avec succés");
+
 
 
         } else {
