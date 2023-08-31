@@ -23,9 +23,15 @@
     <input type="hidden" name="_csrf_token"
            value="{{ csrf_token('authenticate') }}"
     >
+    <div class="checkbox mb3">
+        <label ><input type="checkbox" name ="_remember_me"> Remember me
+        </label>
+    </div>
 
     <button class="btn btn-lg btn-primary mt-2" type="submit">
         Sign in
     </button>
+{#    https://symfony.com/doc/current/security/remember_me.html#}
+
 </form>
 {% endblock %}

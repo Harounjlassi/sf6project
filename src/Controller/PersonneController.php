@@ -157,6 +157,7 @@ class PersonneController extends AbstractController
 //            dd($form->getData()); // meme que dd($personne);
             //si non rediriger vers la liste de personne
             // afficher un message de success
+            $personne->setCreatedBy($this->getUser());
             $entityManager->persist($personne);
             $brochureFile = $form->get('photo')->getData();
 

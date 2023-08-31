@@ -42,7 +42,7 @@
                aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                 <li><a class="dropdown-item" href="{{ path('app_login') }}">Login</a></li>
-
+                <li><a class="dropdown-item" href="{{ path('app_register') }}">Register</a></li>
                 <li><a class="dropdown-item" href="{{ path('app_logout') }}">Logout</a></li>
             </ul>
         </li>
@@ -118,10 +118,17 @@
                     </a>
                 </div>
             </div>
+
             <div class="sb-sidenav-footer">
                 <div class="small">Logged in as:</div>
-                Start Bootstrap
+                {% if app.user %}
+                {{ app.user.email }}
             </div>
+            {% else %}
+                Anonymous
+            {% endif %}
+
+
         </nav>
     </div>
     <div id="layoutSidenav_content">
