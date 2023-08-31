@@ -5,6 +5,7 @@ namespace App\Controller;
 
 use App\Entity\Personne;
 use App\Entity\Profile;
+use App\Event\AddPersonneEvent;
 use App\Form\PersonneType;
 use App\Service\Helpers;
 use App\Service\MailerService;
@@ -13,9 +14,11 @@ use App\Service\UploaderService;
 use Doctrine\Persistence\ManagerRegistry;
 use App\Form\Type\TaskType;
 
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mailer\MailerInterface;
@@ -26,6 +29,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Contracts\EventDispatcher\Event;
 
 
 #[
@@ -34,7 +38,12 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 ]
 class PersonneController extends AbstractController
 {
-    public function __construct(private LoggerInterface $logger, private Helpers $helpers)
+    public function __construct(
+        private LoggerInterface $logger,
+        private Helpers $helpers,
+        private EventDispatcherInterface $dispatcher
+
+    )
     {
     }
 
@@ -169,7 +178,6 @@ class PersonneController extends AbstractController
             //si non rediriger vers la liste de personne
             // afficher un message de success
             $personne->setCreatedBy($this->getUser());
-            $entityManager->persist($personne);
             $brochureFile = $form->get('photo')->getData();
 
             // this condition is needed because the 'brochure' field is not required
@@ -181,8 +189,15 @@ class PersonneController extends AbstractController
 
 
             }
+            $entityManager->persist($personne);
 
             $entityManager->flush();
+            //on a crée notre evenement
+            $addPersonneEvent =new AddPersonneEvent($personne);
+            //on va maintenet le dispatcher
+            $this->dispatcher->dispatch($addPersonneEvent,AddPersonneEvent::ADD_PERSONNE_EVENT);
+
+
             $this->addFlash("success", $personne->getName() . "a ete ahjouter avec succes ");
             return $this->redirectToRoute('personne.list');
 
@@ -217,6 +232,10 @@ class PersonneController extends AbstractController
             $manager->remove($personne);
             //exucuter la transaction
             $manager->flush();
+
+
+
+
             $mailer->sendEmail();
             $this->addFlash('success', "personne  éte supprimer avec succés");
 
