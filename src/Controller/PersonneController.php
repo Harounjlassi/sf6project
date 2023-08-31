@@ -28,7 +28,10 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 
-#[Route('personne')]
+#[
+    Route('personne'),
+    IsGranted('ROLE_USER')
+]
 class PersonneController extends AbstractController
 {
     public function __construct(private LoggerInterface $logger, private Helpers $helpers)
@@ -198,7 +201,10 @@ class PersonneController extends AbstractController
     }
 
 
-    #[Route('/delete/{id}', name: 'personne.delete')]
+    #[
+        Route('/delete/{id}', name: 'personne.delete'),
+        isGranted('ROLE_ADMIN')
+    ]
     public function delatPersonne(ManagerRegistry $doctrine, Personne $personne = null, MailerService $mailer): RedirectResponse
     {
 

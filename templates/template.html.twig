@@ -41,14 +41,19 @@
             <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown"
                aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+                <li><a class="dropdown-item" href="{{ path('app_logout') }}">Logout</a></li>
+                {%else %}
                 <li><a class="dropdown-item" href="{{ path('app_login') }}">Login</a></li>
                 <li><a class="dropdown-item" href="{{ path('app_register') }}">Register</a></li>
-                <li><a class="dropdown-item" href="{{ path('app_logout') }}">Logout</a></li>
+                {% endif %}
             </ul>
         </li>
     </ul>
 </nav>
 <div id="layoutSidenav">
+    {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+
     <div id="layoutSidenav_nav">
         <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
             <div class="sb-sidenav-menu">
@@ -93,10 +98,12 @@
 {#                                    <a class="nav-link" href="password.html">Forgot Password</a>#}
 {#                                </nav>#}
 {#                            </div>#}
+                            {% if is_granted('ROLE_ADMIN') %}
                             <a class="nav-link" href="{{ path('personne.add') }}" >
                                 Ajouter une Personne
 {#                                <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>#}
                             </a>
+                            {% endif %}
 {#                            <div class="collapse" id="pagesCollapseError" aria-labelledby="headingOne"#}
 {#                                 data-bs-parent="#sidenavAccordionPages">#}
 {#                                <nav class="sb-sidenav-menu-nested nav">#}
@@ -131,6 +138,8 @@
 
         </nav>
     </div>
+    {% endif %}
+
     <div id="layoutSidenav_content">
         <main>
             <div class="container-fluid px-4">
@@ -187,6 +196,7 @@
         </footer>
     </div>
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
         crossorigin="anonymous"></script>
 <script src="{{ asset('assets/js/scripts.js') }}"></script>
