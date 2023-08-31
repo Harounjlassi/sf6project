@@ -23,13 +23,15 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\String\Slugger\SluggerInterface;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 
 #[Route('personne')]
 class PersonneController extends AbstractController
 {
-    public function __construct(private LoggerInterface $logger,private Helpers $helpers)
+    public function __construct(private LoggerInterface $logger, private Helpers $helpers)
     {
     }
 
@@ -43,13 +45,15 @@ class PersonneController extends AbstractController
 
 
     }
-    #[Route('/pdf/{id}',name:"personne.pdf")]
-    public function generatePdfPersonne(Personne $personne=null,PdfService $pdf){
-        $html=$this->render('personne/detail.html.twig',['personne'=>$personne]);
+
+    #[Route('/pdf/{id}', name: "personne.pdf")]
+    public function generatePdfPersonne(Personne $personne = null, PdfService $pdf)
+    {
+        $html = $this->render('personne/detail.html.twig', ['personne' => $personne]);
         $pdf->showPdfFile($html);
 
 
-}
+    }
 
     #[Route('/alls/age/{ageMin}/{ageMax}', name: 'personne.list.age')]
     public function personneByAge(ManagerRegistry $doctrine, $ageMin, $ageMax): Response
@@ -92,22 +96,25 @@ class PersonneController extends AbstractController
 
     }
 
-    #[Route('/alls/{page?1}/{nbre?12}', 'personne.list.alls')]
+    #[
+        Route('/alls/{page?1}/{nbre?12}', 'personne.list.alls'),
+        IsGranted("ROLE_USER")
+    ]
     public function indexAllPagination(ManagerRegistry $doctrine, $page, $nbre): Response
     {
-        echo($this->helpers->sayCc());
 
+//        echo($this->helpers->sayCc());
 
-        $repository = $doctrine->getRepository(Personne::class);
-        $nbPersonne = $repository->count([]);
-        $nbPage = ceil($nbPersonne / $nbre);
-        $personne = $repository->findBy([], [], $nbre, ($page - 1) * $nbre);
-        return $this->render('personne/index.html.twig', ['personne' => $personne,
-            'isPaginated' => true,
-            'nbrePage' => $nbPage,
-            'page' => $page,
-            'nbre' => $nbre
-        ]);
+            $repository = $doctrine->getRepository(Personne::class);
+            $nbPersonne = $repository->count([]);
+            $nbPage = ceil($nbPersonne / $nbre);
+            $personne = $repository->findBy([], [], $nbre, ($page - 1) * $nbre);
+            return $this->render('personne/index.html.twig', ['personne' => $personne,
+                'isPaginated' => true,
+                'nbrePage' => $nbPage,
+                'page' => $page,
+                'nbre' => $nbre
+            ]);
 
 
     }
@@ -119,7 +126,7 @@ class PersonneController extends AbstractController
      * @Route("/add", "personne.add")
      */
 
-    public function addPersonne(ManagerRegistry $doctrine, Request $request ,UploaderService $uploader )
+    public function addPersonne(ManagerRegistry $doctrine, Request $request, UploaderService $uploader)
     {
         //$this->getDoctrine() : version sd <= 5
 
@@ -137,10 +144,11 @@ class PersonneController extends AbstractController
 //
 //
 //       // exucution la transaction todo
+        $this->denyAccessUnlessGranted("ROLE_ADMIN");
         $entityManager = $doctrine->getManager();
 
         $personne = new Personne();
-        $form = $this->createForm(PersonneType::class, $personne, );
+        $form = $this->createForm(PersonneType::class, $personne,);
         $form->remove('createdAt');
         $form->remove('updatedAt');
 //        dd($request);
@@ -164,9 +172,9 @@ class PersonneController extends AbstractController
             // this condition is needed because the 'brochure' field is not required
             // so the PDF file must be processed only when a file is uploaded
             if ($brochureFile) {
-                $directory=$this->getParameter('personne_directory');
+                $directory = $this->getParameter('personne_directory');
 
-                $personne->setImage($uploader->uploadfile($brochureFile,$directory));
+                $personne->setImage($uploader->uploadfile($brochureFile, $directory));
 
 
             }
@@ -190,10 +198,8 @@ class PersonneController extends AbstractController
     }
 
 
-
-
     #[Route('/delete/{id}', name: 'personne.delete')]
-    public function delatPersonne(ManagerRegistry $doctrine, Personne $personne = null,MailerService $mailer): RedirectResponse
+    public function delatPersonne(ManagerRegistry $doctrine, Personne $personne = null, MailerService $mailer): RedirectResponse
     {
 
 
@@ -207,7 +213,6 @@ class PersonneController extends AbstractController
             $manager->flush();
             $mailer->sendEmail();
             $this->addFlash('success', "personne  éte supprimer avec succés");
-
 
 
         } else {
@@ -247,6 +252,7 @@ class PersonneController extends AbstractController
 
 
     }
+
     #[Route('/{id}', 'personne.detail')]
     public function detail(Personne $personne): Response
     {
