@@ -237,11 +237,11 @@ class PersonneController extends AbstractController
             //exucuter la transaction
             $manager->flush();
 
-
-
-
             $mailer->sendEmail();
+
+
             $this->addFlash('success', "personne  éte supprimer avec succés");
+
 
 
         } else {

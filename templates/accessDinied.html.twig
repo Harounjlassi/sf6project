@@ -3,7 +3,13 @@
     Access Denied
 
 {% endblock %}
-
+{% block stylesheets %}
+    <style>
+        body {
+            overflow: hidden;
+        }
+    </style>
+{% endblock %}
 
 
     {% block Pagetitle %}
@@ -33,7 +39,7 @@
                 </main>
             </div>
             <div id="layoutError_footer">
-                <footer class="py-4 bg-light mt-auto">
+                <footer class="py-4 bg-light mt-auto">s
                     <div class="container-fluid px-4">
                         <div class="d-flex align-items-center justify-content-between small">
                             <div class="text-muted">Copyright &copy; Your Website 2023</div>
