@@ -32,3 +32,7 @@ services:
     App\EventListener\PersonneListener:
         tags:
             - {name: kernel.event_listener,event: personne.add, method: onAddPersonneListener }
+            - { name: kernel.event_listener, event: kernel.exception, method: onKernelException ,priority: 10 }
+            - {name: kernel.event_listener,event: personne.list.all, method: onListAllstat}
+            - {name: kernel.event_listener,event: personne.list.all, method: onListAllstat2, priority: 100}
+

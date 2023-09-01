@@ -6,6 +6,7 @@ namespace App\Controller;
 use App\Entity\Personne;
 use App\Entity\Profile;
 use App\Event\AddPersonneEvent;
+use App\Event\ListeAllPersonneEvent;
 use App\Form\PersonneType;
 use App\Service\Helpers;
 use App\Service\MailerService;
@@ -87,7 +88,8 @@ class PersonneController extends AbstractController
     {
         $repository = $doctrine->getRepository(Personne::class);
         $stat = $repository->statsPersonneByAgeInterval($ageMin, $ageMax);
-//        dd($stat[0]['ageMoyen']);
+//        dd($stat[0]['nombrePersonne']);
+
         return $this->render('personne/stat.html.twig',
             [
                 'stat' => $stat[0],
@@ -121,6 +123,8 @@ class PersonneController extends AbstractController
             $nbPersonne = $repository->count([]);
             $nbPage = ceil($nbPersonne / $nbre);
             $personne = $repository->findBy([], [], $nbre, ($page - 1) * $nbre);
+        $listAllPersonneEvent=new ListeAllPersonneEvent(count($personne));
+        $this->dispatcher->dispatch($listAllPersonneEvent,ListeAllPersonneEvent::List_All_PERSONNE_EVENT);
             return $this->render('personne/index.html.twig', ['personne' => $personne,
                 'isPaginated' => true,
                 'nbrePage' => $nbPage,
